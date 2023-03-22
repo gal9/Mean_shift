@@ -25,7 +25,8 @@ def x_i_window_construction(window_size: Tuple[int, int]) -> Tuple[np.array, np.
 
     return x_i, y_i
 
-def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: Tuple[int, int]):
+def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: Tuple[int, int],
+               eps: float):
     x_i, y_i = x_i_window_construction(kernel_size)
 
     # PREPARATION FOR ITERATIONS
@@ -39,17 +40,24 @@ def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: 
     positions = []
 
     # ITERATIONS
-    while(abs(x_change) >= 0.01 or abs(y_change) >= 0.01):
+    while(abs(x_change) >= eps or abs(y_change) >= eps):
         positions.append((current_position_x, current_position_y))
 
         mask, patch = get_patch(density, (current_position_x, current_position_y), kernel_size)
         patch = np.multiply(mask, patch)
 
-        x_change = np.divide(np.sum(np.multiply(patch, x_i)), np.sum(patch))
-        y_change = np.divide(np.sum(np.multiply(patch, y_i)), np.sum(patch))
+        x_change = np.divide(np.sum(np.multiply(patch, x_i)), np.sum(patch)+1e-10)
+        y_change = np.divide(np.sum(np.multiply(patch, y_i)), np.sum(patch)+1e-10)
 
         current_position_x += round_larger(x_change)
         current_position_y += round_larger(y_change)
+
+        # Additional stopping condition so it does not repeat the work
+        if((current_position_x, current_position_y) in positions):
+            current_position_x -= round_larger(x_change)
+            current_position_y -= round_larger(y_change)
+            break
+
 
         # Increase the number of iterations
         iteration += 1
