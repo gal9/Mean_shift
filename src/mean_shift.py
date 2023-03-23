@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import Any, List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -26,7 +26,7 @@ def x_i_window_construction(window_size: Tuple[int, int]) -> Tuple[np.array, np.
     return x_i, y_i
 
 def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: Tuple[int, int],
-               eps: float):
+               eps: float, max_iter: int = None):
     x_i, y_i = x_i_window_construction(kernel_size)
 
     # PREPARATION FOR ITERATIONS
@@ -62,6 +62,9 @@ def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: 
         # Increase the number of iterations
         iteration += 1
 
+        if(max_iter and iteration >= max_iter):
+            break
+
     return (current_position_x, current_position_y), iteration, positions
 
 def round_larger(n: float) -> int:
@@ -70,12 +73,10 @@ def round_larger(n: float) -> int:
     else:
         return math.floor(n)
 
-def visualize_mean_shift(density: np.array, path: List[Tuple[int, int]]) -> None:
-    plt.imshow(density)
+def visualize_mean_shift(density: np.array, ax: Any, path: List[Tuple[int, int]]) -> None:
+    ax.imshow(density)
 
     x = [p[0] for p in path]
     y = [p[1] for p in path]
 
-    plt.scatter(x, y, color="red")
-
-    plt.show()
+    ax.scatter(x, y, color="red")
