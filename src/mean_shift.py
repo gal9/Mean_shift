@@ -40,7 +40,7 @@ def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: 
     positions = []
 
     # ITERATIONS
-    while(abs(x_change) >= eps or abs(y_change) >= eps):
+    while((eps == None or abs(x_change) >= eps or abs(y_change) >= eps) and (max_iter == None or iteration < max_iter)):
         positions.append((current_position_x, current_position_y))
 
         mask, patch = get_patch(density, (current_position_x, current_position_y), kernel_size)
@@ -61,9 +61,6 @@ def mean_shift(density: np.array, kernel_size: Tuple[int, int], start_position: 
 
         # Increase the number of iterations
         iteration += 1
-
-        if(max_iter and iteration >= max_iter):
-            break
 
     return (current_position_x, current_position_y), iteration, positions
 

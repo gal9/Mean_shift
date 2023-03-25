@@ -4,11 +4,17 @@ from src.ex2_utils import Tracker, get_patch, extract_histogram, \
 from src.mean_shift import mean_shift
 
 class MeanShiftParams():
-    def __init__(self):
-        self.kernel_sigma = 0.005
-        self.nbins = 16
-        self.histogram_update_alpha = 0
-        self.ms_epsilon = 0.01
+    def __init__(self,
+                 kernel_sigma: float = 0.01,
+                 nbins: int = 16,
+                 histogram_update_alpha: float = 0,
+                 ms_epsilon: float = None,
+                 steps: int = 20):
+        self.kernel_sigma = kernel_sigma
+        self.nbins = nbins
+        self.histogram_update_alpha = histogram_update_alpha
+        self.ms_epsilon = ms_epsilon
+        self.steps = steps
 
 class MeanShiftTracker(Tracker):
     parameters: MeanShiftParams
@@ -63,8 +69,8 @@ class MeanShiftTracker(Tracker):
         weights = np.sqrt(weights)
 
         # Run mean shift
-        new_position, _, _ = mean_shift(weights, self.size, self.position, 
-                                        self.parameters.ms_epsilon, 20)
+        new_position, iter, _ = mean_shift(weights, self.size, self.position, 
+                                        self.parameters.ms_epsilon, self.parameters.steps)
         self.position = new_position
 
         # Update histogram
